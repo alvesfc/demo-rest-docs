@@ -18,7 +18,7 @@ buildscript {
 }
 
 
-//apply plugin: 'org.asciidoctor.convert'
+apply plugin: 'org.asciidoctor.convert'
 
 
 apply plugin: 'java'
@@ -102,4 +102,33 @@ verifierStubsJar.enabled = false
 
 artifacts {
     archives stubsJar
+}
+
+
+asciidoctor {
+    sourceDir = file('docs')
+    sources {
+        include 'index.adoc'
+    }
+    outputDir = file('docs')
+    separateOutputDirs = false
+    resources { }
+    attributes 'source-highlighter': 'prettify'
+
+}
+
+task removeHtml() {
+    doLast {
+        FileTree tree = fileTree(dir: 'docs', include: ['**/*.html'])
+        tree.each {
+            it.delete()
+        }
+    }
+}
+
+asciidoctor.mustRunAfter removeHtml
+
+task generateDocumentation(dependsOn: ["removeHtml", "asciidoctor"]) {
+    group = "Documentation"
+    description = "Creates full documentation for the project"
 }
